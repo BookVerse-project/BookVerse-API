@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BookVerse.Api/BookVerse.Api.csproj" />
+    <Project Path="src/BookVerse.Application/BookVerse.Application.csproj" />
+    <Project Path="src/BookVerse.Domain/BookVerse.Domain.csproj" />
+    <Project Path="src/BookVerse.Infrastructure/BookVerse.Infrastructure.csproj" />
+  </Folder>
+</Solution>
