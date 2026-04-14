@@ -2,6 +2,7 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using BookVerse.Application.InterfaceServices;
 using BookVerse.Application.DTOs.Auth;
+using BookVerse.Application.Common;
 
 namespace BookVerse.Api.Controllers
 {
@@ -20,7 +21,18 @@ namespace BookVerse.Api.Controllers
     public async Task<IActionResult> Register(RegisterRequest request)
     {
         await _service.RegisterAsync(request);
-        return Ok("Register success");
+        return Ok(ApiResponse.Success());
     }
-    }   
-}
+
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(LoginRequest request)
+    {
+    var response = ApiResponse<LoginResponse>.Success(await _service.LoginAsync(request));
+
+    if (!response.Succeeded)
+        return BadRequest(response); 
+
+    return Ok(ApiResponse<LoginResponse>.Success(response.Result)); 
+    }
+}}

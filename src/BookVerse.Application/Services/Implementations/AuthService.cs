@@ -2,7 +2,8 @@ using BookVerse.Application.DTOs.Auth;
 using BookVerse.Application.InterfaceServices;
 using BookVerse.Domain.Entities;
 using BookVerse.Domain.Interfaces;
-using BCrypt.Net;
+using BookVerse.Application.Common;
+using BookVerse.Application.DTOs.Users;
 
 namespace BookVerse.Application.Services.Implementations;
 public class AuthService : IAuthService
@@ -45,6 +46,47 @@ public class AuthService : IAuthService
 
         // Save the user to the database
         await _userRepository.AddAsync(user);
+    }
+
+    
+    public async Task<LoginResponse> LoginAsync(LoginRequest request)
+    {
+        // 1. tìm user
+        var user = await _userRepository.GetByEmailAsync(request.Email);
+        if (user == null)
+            throw new Exception("User not found");
+
+        // 2. check password
+        var isValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
+        if (!isValid)
+            throw new Exception("Wrong password");
+
+        // 3. generate tokens
+        var accessToken = JwtHelper.GenerateJwtToken(user);
+        var refreshToken = JwtHelper.GenerateRefreshToken();
+
+        // 4. map user response
+        var userResponse = new UserResponse
+        {
+            Email = user.Email,
+            UserName = user.Username,
+            Role = user.Role
+        };
+
+        var result = new LoginResponse
+        {
+            AccessToken = accessToken,
+            RefreshToken = refreshToken,
+            User = userResponse
+        };
+
+        return result;
+    }
+
+    public async Task Logout()
+    {
+        // Implement logout logic
+        await Task.CompletedTask;
     }
 
 }
